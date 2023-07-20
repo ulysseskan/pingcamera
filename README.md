@@ -33,6 +33,7 @@ You need a copy of Python 3.  I only tested this with Python 3.10.  One way to i
 
 - [ ] Give instructions on how to setup to run at boot
 - [ ] Allow check interval to be changed in config.ini
+- [ ] Include time of check in output (and in notification?)
 
 <!-- LICENSE -->
 ## License
