@@ -25,6 +25,27 @@ You need a copy of Python 3.  I only tested this with Python 3.10.  One way to i
 3. Ensure Brew's executable bin directory is in your PATH variable, for example:<br>
 ```echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile```
 
+## Running at Startup on macOS
+
+You can either go the launchd route (or use Lingon/LaunchControl), or you can do what I did and do
+it via Automator:
+
+1. Open Automator.  Create a new App with the action Run AppleScript.
+2. Paste in code similar to the following, then drag the new App to your Login Items.
+
+```
+on run
+	tell application "Terminal"
+		do script "cd /Users/username/pingcamera; /usr/local/bin/python3 /Users/username/pingcamera/pingcamera.py; exit"
+		activate
+	end tell
+end run
+```
+
+This opens a Terminal with the script running.  If you want it running silently in the
+background instead, use Run Shell Script instead and make it a background process (`&`` at the end
+of the command).
+
 ## Known Bugs
 
 - [ ] None known.
@@ -33,7 +54,7 @@ You need a copy of Python 3.  I only tested this with Python 3.10.  One way to i
 
 - [x] Allow check interval to be changed in config.ini
 - [x] Include time of check in output (and in notification?)
-- [ ] Give instructions on how to setup to run at boot
+- [x] Give instructions on how to setup to run at boot
 
 <!-- LICENSE -->
 ## License
