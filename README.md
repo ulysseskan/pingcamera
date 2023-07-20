@@ -2,8 +2,7 @@
 Pings an RTSP camera to see if it's returning images.  If it isn't, displays a macOS notification.
 
 ## About
-Tested with Wyze camera with RTSP firmware.  Should work fine with other RTSP cameras as long as you
-configure the ini file with your camera's username and password.
+Tested with Wyze camera with RTSP firmware.  Other cameras untested, but they probably work fine?  Let me know if it works for you.
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -15,7 +14,7 @@ configure the ini file with your camera's username and password.
 5. ```python3 pingcamera.py```
 
 By default, it pings once per hour as long as the script is running.  You can modify the interval by
-updating the schedule line near the bottom of pingcamera.py.
+updating check_interval in config.ini.
 
 ### Prerequisites
 
