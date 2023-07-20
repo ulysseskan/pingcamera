@@ -10,8 +10,9 @@ configure the ini file with your camera's username and password.
 
 1. ```git clone https://github.com/ulysseskan/pingcamera.git```
 2. ```cd pingcamera```
-3. ```mv config.ini.sample config.ini && vi config.ini``` # enter your camera's IP, username, password
-4. ```python3 pingcamera.py```
+3. ```pip3 install -r requirements.txt```
+4. ```mv config.ini.sample config.ini && vi config.ini``` # enter your camera's IP, username, password
+5. ```python3 pingcamera.py```
 
 By default, it pings once per hour as long as the script is running.  You can modify the interval by
 updating the schedule line near the bottom of pingcamera.py.
