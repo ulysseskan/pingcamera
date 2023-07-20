@@ -5,13 +5,14 @@ import configparser
 import time
 import os
 import signal
+import datetime
 import cv2
 import schedule
 
-def is_camera_streaming(url, username, password):
+def is_camera_streaming(url, user, passw):
     """Check if camera is streaming"""
     # Generate the RTSP URL with credentials
-    rtsp_url = f"rtsp://{username}:{password}@{url}/live"
+    rtsp_url = f"rtsp://{user}:{passw}@{url}/live"
 
     # Open the RTSP stream
     # pylint: disable=E1101
@@ -31,48 +32,56 @@ def is_camera_streaming(url, username, password):
     cap.release()
     return False
 
-def check_camera_status():
-    """Read configuration file and check camera status"""
-    config = configparser.ConfigParser()
-    config.read("config.ini")
+def check_camera_status(cam_url, c_user, c_pass):
+    """Check camera status and show notification if there's an issue"""
+    current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    # Extract RTSP credentials from the config file
-    camera_url = config.get("Camera", "url")
-    username = config.get("Camera", "username")
-    password = config.get("Camera", "password")
-
-    if is_camera_streaming(camera_url, username, password):
-        print("Camera is streaming and returning images.")
+    if is_camera_streaming(cam_url, c_user, c_pass):
+        print(f"[{current_time}] Camera is streaming and returning images.")
     else:
-        print("Unable to access the camera or retrieve images.")
-        show_mac_notification("Camera Problem", "The camera is not returning images. \
-                              Please check camera status and restart camera if necessary.")
+        print(f"[{current_time}] Unable to access camera or retrieve images.")
+        show_mac_notification("Camera Problem", f"{current_time}: Camera not returning images. Please check camera status and restart camera if necessary.")
 
 def show_mac_notification(title, message):
-    """Show a notification every 1 hour on macOS"""
+    """Show a notification on macOS"""
     script = f'display notification "{message}" with title "{title}"'
     os.system(f"osascript -e '{script}'")
 
 def exit_gracefully():
     """Clean up nicely if CTRL-C is pressed"""
     print("Cleaning up and exiting.")
-    # Release any resources or perform cleanup here, if needed.
-    # For example, you can close open file handles or release the camera stream.
+    # Release resources
     # pylint: disable=E1101
     cv2.destroyAllWindows()
     raise SystemExit
 
+def read_config():
+    """Read and return camera configuration from config.ini"""
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    return (
+        config.get("Camera", "url"),
+        config.get("Camera", "username"),
+        config.get("Camera", "password"),
+        int(config.get("Camera", "check_interval", fallback=1))
+    )
+
 if __name__ == "__main__":
-    # Register a signal handler to catch keyboard interrupts (Ctrl+C)
+    camera_url, username, password, check_interval = read_config()
+
+    # Print the initial message
+    print(f"Checking camera feed at {camera_url} every {check_interval} hour(s):\n")
+
+    # Register signal handler to catch keyboard interrupts (Ctrl+C)
     signal.signal(signal.SIGINT, lambda signum, frame: exit_gracefully())
 
-    # Check the camera status immediately on script startup
-    check_camera_status()
+    # Check camera status on script startup
+    check_camera_status(camera_url, username, password)
 
-    # Schedule the check_camera_status function to run every 1 hour
-    schedule.every(1).hour.do(check_camera_status)
+    # Schedule the check_camera_status function to run with the configurable interval
+    schedule.every(check_interval).hours.do(check_camera_status, camera_url, username, password)
 
-    # Run the scheduled tasks in an infinite loop
+    # Run the scheduled task in an infinite loop
     while True:
         schedule.run_pending()
         time.sleep(1)
