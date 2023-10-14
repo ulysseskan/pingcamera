@@ -45,7 +45,7 @@ def check_camera_status(cam_url, c_user, c_pass):
 def show_mac_notification(title, message):
     """Show a notification on macOS"""
     script = f'display notification "{message}" with title "{title}"'
-    os.system(f"osascript -e '{script}'")
+    os.system(f'echo -e "\\a"; osascript -e \'{script}\'')
 
 def exit_gracefully():
     """Clean up nicely if CTRL-C is pressed"""
